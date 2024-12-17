@@ -17,12 +17,15 @@
       window.onresize = checkForDesktop;
     </script>
   </head>
+
   <body>
+    <h1>Fluency Flow</h1>
+
     <table id="vocabTable">
       <thead>
         <tr>
-          <th>Fluency</th>
-          <th>Flow</th>
+          <th>一</th>
+          <th>二</th>
         </tr>
       </thead>
       <tbody>
@@ -47,14 +50,15 @@
         JSON.parse(localStorage.getItem("selectedItemsKana")) || {}; // Stores selected items across pages
       let isStudyMode = false; // Tracks if we're in study mode
       let showRomaji = true; // Flag to control whether Romaji is shown
-      let showKana = true; // Flag to control whether Kana is shown
-      let showEnglish = true; // Flag to control whether English is shown
 
       // Load the CSV file
       fetch("vocab_list.csv")
         .then((response) => response.text())
         .then((csvText) => {
-          const parsedData = Papa.parse(csvText, { header: true }).data;
+          const parsedData = Papa.parse(csvText, {
+            header: true,
+            encoding: "UTF-8",
+          }).data;
 
           // Function to render the data
           const renderTable = () => {
@@ -75,26 +79,26 @@
 
             dataToShow.forEach((entry, index) => {
               if (index % 2 === 0) {
-                row = document.createElement("tr");
+                const row = document.createElement("tr");
                 tableBody.appendChild(row);
               }
 
               const td = document.createElement("td");
               td.innerHTML = `
-          ${entry.Kanji}<br>
-          ${showRomaji ? entry.Romaji : ""}
-        `;
+                ${entry.Hiragana}<br>
+                ${showRomaji ? entry.Romaji : ""}
+              `;
 
               const entryId = currentIndex + index;
 
               if (!isStudyMode && selectedItemsKana[entryId]) {
-                td.classList.add("selectedKana");
+                td.classList.add("selected");
               }
 
               td.addEventListener("click", () => {
                 if (!isStudyMode) {
-                  td.classList.toggle("selectedKana");
-                  if (td.classList.contains("selectedKana")) {
+                  td.classList.toggle("selected");
+                  if (td.classList.contains("selected")) {
                     selectedItemsKana[entryId] = entry;
                   } else {
                     delete selectedItemsKana[entryId];
@@ -107,7 +111,7 @@
                 }
               });
 
-              row.appendChild(td);
+              tableBody.querySelector("tr:last-child").appendChild(td);
             });
           };
 

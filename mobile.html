@@ -41,6 +41,9 @@
       <button class="toggle-romaji-button" id="toggleRomajiButton">
         Toggle Romaji
       </button>
+      <button class="toggle-voice-button" id="toggleVoiceButton">
+        Voice: OFF
+      </button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -50,6 +53,7 @@
         JSON.parse(localStorage.getItem("selectedItemsKana")) || {}; // Stores selected items across pages
       let isStudyMode = false; // Tracks if we're in study mode
       let showRomaji = true; // Flag to control whether Romaji is shown
+      let voiceEnabled = true; // Track if voice is enabled
 
       // Load the CSV file
       fetch("vocab_list.csv")
@@ -90,12 +94,20 @@
               `;
 
               const entryId = currentIndex + index;
+              const speakHiragana = (text) => {
+                if (voiceEnabled && "speechSynthesis" in window) {
+                  const utterance = new SpeechSynthesisUtterance(text);
+                  utterance.lang = "ja-JP"; // Set language to Japanese
+                  speechSynthesis.speak(utterance);
+                }
+              };
 
               if (!isStudyMode && selectedItemsKana[entryId]) {
                 td.classList.add("selected");
               }
 
               td.addEventListener("click", () => {
+                speakHiragana(entry.Hiragana);
                 if (!isStudyMode) {
                   td.classList.toggle("selected");
                   if (td.classList.contains("selected")) {
@@ -149,6 +161,15 @@
                 ? "Show All"
                 : "Study Mode";
               renderTable();
+            });
+
+          document
+            .getElementById("toggleVoiceButton")
+            .addEventListener("click", () => {
+              voiceEnabled = !voiceEnabled;
+              document.getElementById(
+                "toggleVoiceButton"
+              ).textContent = `Voice: ${voiceEnabled ? "OFF" : "ON"}`;
             });
 
           document
